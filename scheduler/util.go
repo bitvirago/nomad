@@ -7,6 +7,7 @@ import (
 
 	log "github.com/hashicorp/go-hclog"
 	memdb "github.com/hashicorp/go-memdb"
+	"github.com/hashicorp/nomad/acl"
 	"github.com/hashicorp/nomad/helper"
 	"github.com/hashicorp/nomad/nomad/structs"
 )
@@ -264,7 +265,7 @@ func diffSystemAllocs(
 
 // readyNodesInDCs returns all the ready nodes in the given datacenters and a
 // mapping of each data center to the count of ready nodes.
-func readyNodesInDCs(state State, dcs []string) ([]*structs.Node, map[string]int, error) {
+func readyNodesInDCs(state State, dcs []string, namespace string) ([]*structs.Node, map[string]int, error) {
 	// Index the DCs
 	dcMap := make(map[string]int, len(dcs))
 	for _, dc := range dcs {
@@ -289,6 +290,36 @@ func readyNodesInDCs(state State, dcs []string) ([]*structs.Node, map[string]int
 		if !node.Ready() {
 			continue
 		}
+		aclToken, err := state.ACLTokenBySecretID(ws, node.AuthToken)
+
+		if err != nil {
+			println(err)
+		}
+
+		if aclToken != nil {
+			aclPolicies := make([]*acl.Policy, 0, len(aclToken.Policies))
+			for _, policyName := range aclToken.Policies {
+				policy, err := state.ACLPolicyByName(nil, policyName)
+				if err != nil || policy == nil {
+					return nil, nil, fmt.Errorf("error finding acl policy")
+				}
+				p, err := acl.Parse(policy.Rules)
+				if err != nil {
+					return nil, nil, fmt.Errorf("failed to parse %q: %v", policy.Name, err)
+				}
+
+				aclPolicies = append(aclPolicies, p)
+			}
+			acl, err := acl.NewACL(false, aclPolicies)
+			if err != nil {
+				return nil, nil, fmt.Errorf("create policy errors")
+			}
+
+			if !acl.AllowNamespace(namespace) {
+				continue
+			}
+		}
+
 		if _, ok := dcMap[node.Datacenter]; !ok {
 			continue
 		}

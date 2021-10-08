@@ -107,6 +107,10 @@ type State interface {
 
 	// CSIVolumeByID fetch CSI volumes, containing controller jobs
 	CSIVolumesByNodeID(memdb.WatchSet, string, string) (memdb.ResultIterator, error)
+
+	ACLTokenBySecretID(ws memdb.WatchSet, secretID string) (*structs.ACLToken, error)
+
+	ACLPolicyByName(ws memdb.WatchSet, name string) (*structs.ACLPolicy, error)
 }
 
 // Planner interface is used to submit a task allocation plan.

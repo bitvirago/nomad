@@ -178,6 +178,9 @@ type Config struct {
 
 // ClientConfig is configuration specific to the client mode
 type ClientConfig struct {
+	// AuthToken set up the token
+	AuthToken string `hcl:"auth_token"`
+
 	// Enabled controls if we are a client
 	Enabled bool `hcl:"enabled"`
 
@@ -1576,7 +1579,9 @@ func (a *ServerConfig) Merge(b *ServerConfig) *ServerConfig {
 // Merge is used to merge two client configs together
 func (a *ClientConfig) Merge(b *ClientConfig) *ClientConfig {
 	result := *a
-
+	if b.AuthToken != "" {
+		result.AuthToken = b.AuthToken
+	}
 	if b.Enabled {
 		result.Enabled = true
 	}

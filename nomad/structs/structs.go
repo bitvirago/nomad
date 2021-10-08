@@ -1911,6 +1911,8 @@ type Node struct {
 	// LastDrain contains metadata about the most recent drain operation
 	LastDrain *DrainMetadata
 
+	AuthToken string
+
 	// Raft Indexes
 	CreateIndex uint64
 	ModifyIndex uint64
