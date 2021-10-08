@@ -415,7 +415,7 @@ func TestReadyNodesInDCs(t *testing.T) {
 	require.NoError(t, state.UpsertNode(structs.MsgTypeTestSetup, 1002, node3))
 	require.NoError(t, state.UpsertNode(structs.MsgTypeTestSetup, 1003, node4))
 
-	nodes, dc, err := readyNodesInDCs(state, []string{"dc1", "dc2"})
+	nodes, dc, err := readyNodesInDCs(state, []string{"dc1", "dc2"}, "default")
 	require.NoError(t, err)
 	require.Equal(t, 2, len(nodes))
 	require.True(t, nodes[0].ID != node3.ID && nodes[1].ID != node3.ID)

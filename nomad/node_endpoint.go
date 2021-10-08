@@ -79,6 +79,14 @@ type Node struct {
 
 // Register is used to upsert a client that is available for scheduling
 func (n *Node) Register(args *structs.NodeRegisterRequest, reply *structs.NodeUpdateResponse) error {
+	// Check node write permissions
+
+	if aclObj, err := n.srv.ResolveToken(args.AuthToken); err != nil {
+		return err
+	} else if aclObj != nil && !aclObj.AllowNodeWrite() {
+		return structs.ErrPermissionDenied
+	}
+
 	isForwarded := args.IsForwarded()
 	if done, err := n.srv.forward("Node.Register", args, args, reply); done {
 		// We have a valid node connection since there is no error from the
@@ -128,6 +136,8 @@ func (n *Node) Register(args *structs.NodeRegisterRequest, reply *structs.NodeUp
 
 	// Set the timestamp when the node is registered
 	args.Node.StatusUpdatedAt = time.Now().Unix()
+
+	args.Node.AuthToken = args.AuthToken
 
 	// Compute the node class
 	if err := args.Node.ComputeClass(); err != nil {

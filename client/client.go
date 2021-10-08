@@ -1798,7 +1798,7 @@ func (c *Client) registerNode() error {
 	node := c.Node()
 	req := structs.NodeRegisterRequest{
 		Node:         node,
-		WriteRequest: structs.WriteRequest{Region: c.Region()},
+		WriteRequest: structs.WriteRequest{Region: c.Region(), AuthToken: c.config.AuthToken},
 	}
 	var resp structs.NodeUpdateResponse
 	if err := c.RPC("Node.Register", &req, &resp); err != nil {

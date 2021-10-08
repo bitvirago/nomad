@@ -268,6 +268,8 @@ type Config struct {
 
 	// ReservableCores if set overrides the set of reservable cores reported in fingerprinting.
 	ReservableCores []uint16
+
+	AuthToken string
 }
 
 type ClientTemplateConfig struct {

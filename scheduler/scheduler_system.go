@@ -122,7 +122,7 @@ func (s *SystemScheduler) process() (bool, error) {
 
 	// Get the ready nodes in the required datacenters
 	if !s.job.Stopped() {
-		s.nodes, s.nodesByDC, err = readyNodesInDCs(s.state, s.job.Datacenters)
+		s.nodes, s.nodesByDC, err = readyNodesInDCs(s.state, s.job.Datacenters, s.job.Namespace)
 		if err != nil {
 			return false, fmt.Errorf("failed to get ready nodes: %v", err)
 		}

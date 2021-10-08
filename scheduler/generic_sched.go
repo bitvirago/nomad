@@ -471,7 +471,8 @@ func (s *GenericScheduler) downgradedJobForPlacement(p placementResult) (string,
 // destructive updates to place and the set of new placements to place.
 func (s *GenericScheduler) computePlacements(destructive, place []placementResult) error {
 	// Get the base nodes
-	nodes, byDC, err := readyNodesInDCs(s.state, s.job.Datacenters)
+	s.logger.Info("NAMESPACE:" + s.job.Namespace)
+	nodes, byDC, err := readyNodesInDCs(s.state, s.job.Datacenters, s.job.Namespace)
 	if err != nil {
 		return err
 	}
